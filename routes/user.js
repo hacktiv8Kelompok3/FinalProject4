@@ -8,7 +8,7 @@ router.post('/login', user.login)
 router.use(authentication)
 // router.get('/', user.getAllUsers)
 router.put('/:id',authorizationUser, user.updateUser)
-router.delete('/:id', user.deleteUser)
+router.delete('/:id',authorizationUser, user.deleteUser)
 
 
 module.exports = router;
