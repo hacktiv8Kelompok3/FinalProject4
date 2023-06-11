@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test npx jest --runInBand --detectOpenHandles --forceExit --verbose",
+    "create":"npx sequelize db:create",
     "start": "npx sequelize db:migrate",
     "db:create:test": "NODE_ENV=test npx sequelize db:create",
     "db:migrate:test": "NODE_ENV=test npx sequelize db:migrate",
