@@ -1,5 +1,5 @@
 const { User } = require('../models')
-const { comparePassword,hashPassword } = require("../helpers/bcrypt")
+const { comparePassword } = require("../helpers/bcrypt")
 const {generateToken} = require("../helpers/jwt")
 class userController {
     static async getAllUsers(req, res) {
@@ -35,20 +35,21 @@ class userController {
 
             const response = {
                 id: data.id,
+                email:data.email,
                 full_name: data.full_name,
                 username: data.username,
                 profile_image_url: data.profile_image_url,
                 age: data.age,
                 phone_number: data.phone_number
             }
-            res.status(200).send(response)
+            res.status(201).send(response)
         } catch (error) {
             if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
                 const validasiErorr = {};
                 error.errors.map((er) => {
                     validasiErorr[er.path] = er.message;
                 });
-                return res.status(400).json({"error":validasiErorr});
+                return res.status(500).json({"error":validasiErorr});
             }else{
                 res.status(error?.code || 500).json(error)
             }
@@ -68,14 +69,14 @@ class userController {
             })
             if (!user) {
                 throw {
-                    code: 404,
+                    code: 400,
                     message: 'User not found'
                 }
             }
             const isCorrect = comparePassword(password, user.password)
-            console.log(password)
-            console.log(user.password)
-            console.log(isCorrect)
+            // console.log(password)
+            // console.log(user.password)
+            // console.log(isCorrect)
             if (!isCorrect) {
                 throw {
                   code: 401,
@@ -88,10 +89,16 @@ class userController {
                 username: user.username
             }
             const token = generateToken(response)
-            res.status(200).json({token})
+            const viewUser = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                token:token,
+            }
+            res.status(200).json({viewUser})
         } catch (error) {
             res.status(error?.code || 500).json(error)
-            console.log(error)
+            // console.log(error)
         }
     }
     static async updateUser(req, res) { 
@@ -130,7 +137,7 @@ class userController {
                 age: result[1][0].age,
                 phone_number:result[1][0].phone_number
             }
-            res.status(201).json(userView)
+            res.status(200).json(userView)
         } catch (error) {
             res.status(error?.code || 500).json(error)
         }
@@ -148,7 +155,7 @@ class userController {
                   message: "Data not found!"
                 }
             }
-            res.status(201).json({message:`Delete id ${id} success!`})
+            res.status(200).json({message:`Delete id ${id} success!`})
         } catch (error) {
             res.status(error?.code || 500).json(error)
             console.log(error)
