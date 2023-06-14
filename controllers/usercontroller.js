@@ -32,6 +32,7 @@ class userController {
                 age,
                 phone_number
             })
+            console.log(data);
 
             const response = {
                 id: data.id,
