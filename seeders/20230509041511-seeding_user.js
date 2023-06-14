@@ -6,9 +6,8 @@ const userData = [
     email: "johndoe@mail.com",
     username: "JohnDoe",
     password: "123456",
-    password: "123456",
     profile_image_url: "user1.com",
-    age: "20",
+    age: 20,
     phone_number: "0812312312",
     createdAt: new Date(),
     updatedAt: new Date()
