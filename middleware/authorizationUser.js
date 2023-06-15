@@ -3,9 +3,9 @@ const { User } = require('../models');
 const authorizationUser = async (req, res, next) => { 
     try {
         const UserId = req.params.id
-        console.log(UserId,"<< idnya")
+        // console.log(UserId,"<< idnya")
         const authenticatedUser = req.UserData
-        console.log(authenticatedUser,"<< authenticatedUser")
+        // console.log(authenticatedUser,"<< authenticatedUser")
         const user = await User.findOne({
             where: {
                 id:UserId
@@ -17,7 +17,7 @@ const authorizationUser = async (req, res, next) => {
               message: `User With id ${UserId} not found`,
             });
         }
-        console.log(authenticatedUser.id,"idnya dari auth");
+        // console.log(authenticatedUser.id,"idnya dari auth");
         if (user.id === authenticatedUser.id) {
           return next();
           console.log('test')
