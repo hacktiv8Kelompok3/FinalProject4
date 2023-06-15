@@ -180,6 +180,62 @@ describe("GET /photo/", () => {
     })
 })
 
-describe("response 200", async () => {
-    
+describe("PUT /photos/:photoId", () => { 
+    it("should update a photo and return status 200", async () => { 
+        const updatePhoto = {
+            title: "Updated Photo",
+            caption: "This photo has been updated",
+            poster_image_url: "www.google.com",
+        }
+        const res = await request(app)
+            .put(`/photo/${id}`)
+            .send(updatePhoto)
+            .set("token", token)
+        expect(res.statusCode).toEqual(200)
+        expect(res.body.photo).toHaveProperty("id")
+        expect(res.body.photo).toHaveProperty("title")
+        expect(res.body.photo).toHaveProperty("caption")
+        expect(res.body.photo).toHaveProperty("poster_image_text")
+        expect(res.body.photo).toHaveProperty("UserId")
+
+    })
+
+    it("should return status 401 if there is no authentication", async () => { 
+        const updatePhoto = {
+            title: "Updated Photo",
+            caption: "This photo has been updated",
+            poster_image_url: "www.google.com",
+        }
+        const res = await request(app)
+            .put(`/photo/${id}`)
+            .send(updatePhoto)
+        
+        
+        expect(res.statusCode).toEqual(401)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual("Token not provided!")
+
+    })
+
+    it("should return status 404 if photo is not found", async () => { 
+        const updatePhoto = {
+            title: "Updated Photo",
+            caption: "This photo has been updated",
+            poster_image_url: "www.google.com",
+        }
+        const res = await request(app)
+            .put(`/photo/${id+1}`)
+            .send(updatePhoto)
+            .set("token", token)
+        
+        expect(res.statusCode).toEqual(404)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual(`Photo with id ${id+1} not found`)
+        
+    })
 })

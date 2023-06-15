@@ -1,0 +1,77 @@
+[33mcommit def95cb8a743a9cea5ef357aafca51b364023875[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 8f43d4d 5c0d012
+Author: Andreas Nugroho <79098402+AndreasNugoho@users.noreply.github.com>
+Date:   Wed Jun 14 23:54:08 2023 +0700
+
+    Merge pull request #4 from hacktiv8Kelompok3/fix-user
+    
+    #3 fix user update test
+
+[33mcommit 5c0d01223c8577275b68e17d63de81c003a787b2[m[33m ([m[1;31morigin/fix-user[m[33m)[m
+Author: AndreasNugroho <andreas.nugroho@ti.ukdw.ac.id>
+Date:   Wed Jun 14 23:53:38 2023 +0700
+
+    #3 fix user update test
+
+[33mcommit 8f43d4d75c747d1776d112ff584128783d4d5c73[m
+Merge: 836de48 8f06c43
+Author: Lexy <dwilexy.002@gmail.com>
+Date:   Wed Jun 14 11:32:40 2023 +0700
+
+    Merge pull request #3 from hacktiv8Kelompok3/phototest
+    
+    photo test
+
+[33mcommit 8f06c4397c8998fce4b1acb8363633a03dd89000[m
+Author: Lexy <dwilexy.002@gmail.com>
+Date:   Wed Jun 14 11:31:17 2023 +0700
+
+    photo test
+
+[33mcommit 836de48df4e2627509e0c897052a4cb6793ad665[m[33m ([m[1;31morigin/comment-test[m[33m)[m
+Author: MuhammadFadhil1024 <61375944+MuhammadFadhil1024@users.noreply.github.com>
+Date:   Wed Jun 14 02:58:24 2023 +0700
+
+    add testing for comment
+
+[33mcommit 67278cc897efee6368d5411c2e3442ea5266ce50[m
+Merge: b846b64 4522be2
+Author: Andreas Nugroho <79098402+AndreasNugoho@users.noreply.github.com>
+Date:   Mon Jun 12 00:52:50 2023 +0700
+
+    Merge pull request #2 from hacktiv8Kelompok3/user-andre
+    
+    readme update and scripts
+
+[33mcommit 4522be23f693739f6936d442986a1c6b1c0e38d5[m[33m ([m[1;31morigin/user-andre[m[33m)[m
+Author: AndreasNugroho <andreas.nugroho@ti.ukdw.ac.id>
+Date:   Mon Jun 12 00:51:52 2023 +0700
+
+    readme update and scripts
+
+[33mcommit b846b64470ad2fd01562a0bc45f40710e2a20548[m
+Merge: df20c2e 8eacaf9
+Author: Andreas Nugroho <79098402+AndreasNugoho@users.noreply.github.com>
+Date:   Mon Jun 12 00:47:29 2023 +0700
+
+    Merge pull request #1 from hacktiv8Kelompok3/user-andre
+    
+    #2 updated test user
+
+[33mcommit 8eacaf932baf0958559c7c64d6fad625c998e389[m
+Author: AndreasNugroho <andreas.nugroho@ti.ukdw.ac.id>
+Date:   Mon Jun 12 00:46:46 2023 +0700
+
+    #2 updated test user
+
+[33mcommit df20c2e1c702521d3b101a198b6597a1feb3fbaa[m
+Author: AndreasNugroho <andreas.nugroho@ti.ukdw.ac.id>
+Date:   Thu Jun 8 15:26:09 2023 +0700
+
+    initial commit from fp2
+
+[33mcommit 8295f1913282d79d2bd78188f0315b33aad33968[m
+Author: Andreas Nugroho <79098402+AndreasNugoho@users.noreply.github.com>
+Date:   Wed May 31 13:18:04 2023 +0700
+
+    Initial commit
