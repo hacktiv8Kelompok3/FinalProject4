@@ -11,6 +11,7 @@ const authorizationUser = async (req, res, next) => {
                 id:UserId
             }
         })
+        console.log(user);
         if (!user) {
             return res.status(404).json({
               name: 'Data Not Found',

@@ -7,7 +7,7 @@ router.use(authentication)
 
 router.get("/", photo.getAllPhoto)
 router.post("/create", photo.createPhoto)
-router.delete("/:id", authorizationPhoto,photo.deletePhoto)
+router.delete("/:id", photo.deletePhoto)
 router.put("/:id", authorizationPhoto,photo.updatePhoto)
 
 module.exports = router

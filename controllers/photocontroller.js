@@ -93,7 +93,9 @@ class photoController {
                 }
             }
 
-            res.status(200).json({message:`Delete photo Id ${id} success!`})
+            res.status(200).json({
+                code: 200,
+                message:`Delete photo Id ${id} success!`})
         } catch (error) {
             res.status(404).json(error)
             console.log(error);

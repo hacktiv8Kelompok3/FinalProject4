@@ -2,12 +2,13 @@ const app = require('../app')
 const request = require('supertest')
 const { generateToken } = require('../helpers/jwt')
 const { hashPassword } = require('../helpers/bcrypt.js')
-const { User, Photo, Comment } = require('../models')
+const { User, Photo, sequelize } = require('../models')
 
 let token 
 let UserId
 let id
-let comment
+let userId
+let photoId
 
 beforeAll(async () => {
    try {
@@ -33,7 +34,6 @@ beforeAll(async () => {
         poster_image_poster
     })
 
-    
     console.log(token);
    } catch (error) {
     console.log(error);
@@ -45,6 +45,12 @@ afterAll(async () => {
         const user = await User.destroy({
             where: {}
         })
+        
+        const photo = await Photo.destroy({
+            where: {}
+        })
+
+        await sequelize.queryInterface.bulkDelete("Photos", null, {})
     } catch (error) {
         console.log(error);
     }
@@ -69,6 +75,7 @@ describe("POST /photo/create", () => {
                 done(err)
             }
             id = res.body.id
+            console.log(id);
             expect(typeof res.body).toEqual("object")
             expect(res.body).toHaveProperty("id")
             expect(res.body).toHaveProperty("title")
@@ -178,6 +185,7 @@ describe("GET /photo/", () => {
     })
 })
 
+
 describe("PUT /photos/:photoId", () => { 
     it("should update a photo and return status 200", async () => { 
         const updatePhoto = {
@@ -236,4 +244,151 @@ describe("PUT /photos/:photoId", () => {
         expect(res.body.message).toEqual(`Photo with id ${id+1} not found`)
         
     })
+})
+
+const userCreate = {
+    full_name: "admin1",
+    email: "admin1@mail.com",
+    username: "admin1",
+    password: "123456",
+    profile_image_url: "www.facebook.com",
+    age: 20,
+    phone_number: 8437347
+}
+
+const createPhoto = {
+    title: "create",
+    caption: "create",
+    poster_image_text: "google.com"
+}
+
+describe("DELETE /photo/:id", () => {
+
+    it("response user login", (done) => {
+        request(app)
+        .post("/users/register")
+        .send(userCreate)
+        .set({
+            token: token
+        })
+        .expect(201)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+            userId = res.body.id
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty('id')
+            expect(res.body).toHaveProperty('full_name')
+            expect(res.body).toHaveProperty('email')
+            expect(res.body).toHaveProperty('username')
+            expect(res.body).toHaveProperty('profile_image_url')
+            expect(res.body).toHaveProperty('age')
+            expect(res.body).toHaveProperty('phone_number')
+            done()
+        })
+    })
+
+    it("login", (done) => {
+        request(app)
+        .post("/photo/create")
+        .send(createPhoto)
+        .set({
+            token: token
+        })
+        .expect(200)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+            photoId = res.body.id
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("id")
+            expect(res.body).toHaveProperty("title")
+            expect(res.body).toHaveProperty("caption")
+            expect(res.body).toHaveProperty("poster_image_text")
+            done()
+        })
+    })
+
+    it("response sukses DELETE ", (done) => {
+        request(app)
+        .delete(`/photo/${id}`)
+        .set({
+            token: token
+        })
+        .expect(200)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+
+            photoId = res.body.id
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("code")
+            expect(res.body).toHaveProperty("message")
+            expect(typeof res.body.code).toEqual("number")
+            expect(typeof res.body.message).toEqual("string")
+            expect(res.body.code).toEqual(200)
+            expect(res.body.message).toEqual(`Delete photo Id ${id} success!`)
+            done()
+        })
+    })
+
+    it("response gagal 401 tidak memakai token", (done) => {
+        request(app)
+        .delete(`/photo/${id}`)
+        .expect(401)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("message")
+            expect(typeof res.body.message).toEqual("string")
+            expect(res.body.message).toEqual("Token not provided!")
+            done()
+        })
+    })
+
+    it("response error 404 Photo Id tidak ditemukan", (done) => {
+        request(app)
+        .delete(`/photo/${id}`)
+        .set({
+            token: token
+        })
+        .expect(404)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("message")
+            expect(typeof res.body.message).toEqual("string")
+            expect(res.body.message).toEqual(`Photo with id ${id} not found`)
+            done()
+        })
+    }) 
+
+    it("response error 403 authorization ", (done) => {
+        request(app)
+        .delete(`/photo/${id}`)
+        .set({
+            token: token
+        })
+        .expect(403)
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("name")
+            expect(typeof res.body.name).toEqual("string")
+            expect(res.body.name).toEqual("Authorization error")           
+            done()
+        })
+    }) 
 })
