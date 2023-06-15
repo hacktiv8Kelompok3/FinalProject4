@@ -5,9 +5,10 @@ const { hashPassword } = require('../helpers/bcrypt.js')
 const { User, Photo, Comment } = require('../models')
 
 let token 
+let newToken
 let UserId
 let id
-let comment
+let newId
 
 beforeAll(async () => {
    try {
@@ -26,15 +27,22 @@ beforeAll(async () => {
         email: user.email,
         username: user.username
     })
-
-    const photoEdit = await Photo.update({
-        title,
-        caption,
-        poster_image_poster
+       
+    const newUser = await User.create({
+        full_name: "new",
+        email: "new@mail.com",
+        username: "new",
+        password: "123456",
+        profile_image_url: "www.facebook.com",
+        age: 20,
+        phone_number: 8437347
     })
-
-    
-    console.log(token);
+       
+    newToken = generateToken({
+        id: newUser.id,
+        email: newUser.email,
+        username: newUser.username
+    })
    } catch (error) {
     console.log(error);
    }
@@ -68,7 +76,9 @@ describe("POST /photo/create", () => {
             if(err) {
                 done(err)
             }
+            UserId = res.body.UserId
             id = res.body.id
+            console.log(res.body,'old user res bodi')
             expect(typeof res.body).toEqual("object")
             expect(res.body).toHaveProperty("id")
             expect(res.body).toHaveProperty("title")
@@ -78,6 +88,38 @@ describe("POST /photo/create", () => {
             expect(res.body.title).toEqual("test")
             expect(res.body.caption).toEqual("test")
             expect(res.body.poster_image_text).toEqual("test.com")
+            done()
+        })
+    })
+
+    it("send response 200 another user", (done) => {
+        request(app)
+        .post("/photo/create")
+        .send({
+            title: "xxx",
+            caption: "xxx",
+            poster_image_text: "xxx.com",
+            UserId: UserId
+        })
+        .expect(200)
+        .set({
+            token: newToken
+        })
+        .end((err, res) => {
+            if(err) {
+                done(err)
+            }
+            newId = res.body.id
+            console.log(res.body,'new user res bodi')
+            expect(typeof res.body).toEqual("object")
+            expect(res.body).toHaveProperty("id")
+            expect(res.body).toHaveProperty("title")
+            expect(res.body).toHaveProperty("caption")
+            expect(res.body).toHaveProperty("poster_image_text")
+            expect(res.body).toHaveProperty("UserId")
+            expect(res.body.title).toEqual("xxx")
+            expect(res.body.caption).toEqual("xxx")
+            expect(res.body.poster_image_text).toEqual("xxx.com")
             done()
         })
     })
@@ -123,6 +165,7 @@ describe("POST /photo/create", () => {
             if(err) {
                 done(err)
             }
+
             expect(typeof res.body).toEqual("object")
             expect(res.body).toHaveProperty("error")
             expect(typeof res.body.error.poster_image_text).toEqual("string")
@@ -189,6 +232,7 @@ describe("PUT /photos/:photoId", () => {
             .put(`/photo/${id}`)
             .send(updatePhoto)
             .set("token", token)
+        
         expect(res.statusCode).toEqual(200)
         expect(res.body.photo).toHaveProperty("id")
         expect(res.body.photo).toHaveProperty("title")
@@ -224,7 +268,7 @@ describe("PUT /photos/:photoId", () => {
             poster_image_url: "www.google.com",
         }
         const res = await request(app)
-            .put(`/photo/${id+1}`)
+            .put(`/photo/${id+2}`)
             .send(updatePhoto)
             .set("token", token)
         
@@ -233,7 +277,58 @@ describe("PUT /photos/:photoId", () => {
         expect(res.body).toHaveProperty("name")
         expect(res.body).toHaveProperty("message")
         expect(typeof res.body.message,).toEqual("string")
-        expect(res.body.message).toEqual(`Photo with id ${id+1} not found`)
+        expect(res.body.message).toEqual(`Photo with id ${id+2} not found`)
         
+    })
+})
+
+describe("DELETE /photos/:photoId", () => { 
+    it("should delete a photo and return status 200", async () => { 
+        const res = await request(app)
+            .delete(`/photo/${id}`)
+            .set("token", token)
+
+        expect(res.statusCode).toEqual(200)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual(`Delete photo Id ${id} success!`)
+
+    })
+
+    it("should return status 401 if there is no authentication", async () => { 
+        const res = await request(app)
+            .delete(`/photo/${id}`)
+        
+        expect(res.statusCode).toEqual(401)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("code")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual(`Token not provided!`)
+    })
+
+    it("should return 403 status code if the photo is not owned by the user", async () => { 
+        const res = await request(app)
+            .delete(`/photo/${newId}`)
+            .set("token", token)
+
+        expect(res.statusCode).toEqual(403)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual(` User with id ${UserId}  do not have permission with comment id ${newId}`)
+
+    })
+    it("should return 404 status code if the photo is not found", async () => { 
+        const res = await request(app).delete(`/photo/${id+2}`).set("token", token)
+
+        expect(res.statusCode).toEqual(404)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message,).toEqual("string")
+        expect(res.body.message).toEqual(`Photo with id ${id+2} not found`)
     })
 })
