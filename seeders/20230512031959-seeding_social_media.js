@@ -6,7 +6,7 @@ const dataSocialMedia =  [
     social_media_url: "socialmedia.com",
     createdAt: new Date(),
     updatedAt: new Date(),
-    UserId: 3
+    UserId: 1
   }
 ]
 
