@@ -9,6 +9,6 @@ router.use(authentication)
 router.get("/", socialMedia.getAllSosmed)
 router.post("/create", socialMedia.createSosmed)
 router.put("/:id", authorizationSosmed,socialMedia.updateSosmed)
-router.delete("/:id", socialMedia.deleteSosmed)
+router.delete("/:id", authorizationSosmed,socialMedia.deleteSosmed)
 
 module.exports = router

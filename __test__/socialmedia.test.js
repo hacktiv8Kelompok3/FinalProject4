@@ -6,6 +6,9 @@ const { SocialMedia, User, Photo } = require('../models')
 
 let token
 let UserId
+let newToken
+let SosmedId
+let newSosmedId
 
 beforeAll(async () => {
    try {
@@ -24,9 +27,33 @@ beforeAll(async () => {
         email: user.email,
         username: user.username
     })
+    
+    UserId = user.id
+       
+    const newUser = await User.create({
+        full_name: "new",
+        email: "new@mail.com",
+        username: "new",
+        password: "123456",
+        profile_image_url: "www.facebook.com",
+        age: 20,
+        phone_number: 8437347
+    })
 
-    console.log(user);
-    console.log(token);
+    newToken = generateToken({
+        id: newUser.id,
+        email: newUser.email,
+        username: newUser.username
+    })
+       
+    const newSosmed = await SocialMedia.create({
+        name: "another",
+        social_media_url: "another.com",
+        UserId: newUser.id
+    })
+
+    newSosmedId = newSosmed.id
+
    } catch (error) {
     console.log(error);
    }
@@ -56,12 +83,13 @@ describe("POST /socialmedia/create", () => {
         .set({
             token: token
         })
+        
         .expect(200)
         .end((err,res) => {
             if(err) {
                 done(err)
             }
-
+            SosmedId = res.body.id
             expect(typeof res.body).toEqual("object")
             expect(res.body).toHaveProperty("id")
             expect(res.body).toHaveProperty("name")
@@ -165,3 +193,117 @@ describe("GET /socialmedia/", () => {
         })
     })
 })
+
+describe("PUT /socialmedia/:socialMediaId", () => { 
+    it("should return status 200 if social media is updated successfully", async () => { 
+        const updateData = {
+            name: "baru",
+            social_media_url: "baru",
+        }
+        const res = await request(app)
+            .put(`/socialmedia/${SosmedId}`)
+            .send(updateData)
+            .set("token", token)
+        expect(res.statusCode).toEqual(200)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("social_media")
+        expect(res.body.social_media).toHaveProperty("id")
+        expect(res.body.social_media).toHaveProperty("name")
+        expect(res.body.social_media).toHaveProperty("social_media_url")
+        expect(res.body.social_media).toHaveProperty("UserId")
+    })
+
+    it("should return status 401 if there is no authentication", async () => { 
+        const res = await request(app)
+            .put(`/socialmedia/${SosmedId}`)
+            .send({ name: "error", social_media_url: "error.com" })
+        
+        expect(res.statusCode).toEqual(401)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("code")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual("Token not provided!")
+    })
+
+    it("should return status 401 if the user is not authorized", async () => { 
+        const res = await request(app)
+            .put(`/socialmedia/${newSosmedId}`)
+            .send({ name: "error", social_media_url: "error.com" })
+            .set("token", token)
+        expect(res.statusCode).toEqual(403)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(` User with id ${UserId}  do not have permission with sosmed user id ${newSosmedId}`)
+
+    }) 
+
+    it("should return status 404 if social media is not found", async () => { 
+        const res = await request(app)
+            .put(`/socialmedia/${SosmedId+2}`)
+            .send({ name: "error", social_media_url: "error.com" })
+            .set("token", token)
+        console.log(res, 'resnya')
+        expect(res.statusCode).toEqual(404)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(`Photo with id ${SosmedId+2} not found`)
+
+    })
+})
+
+describe("DELETE /socialmedia/:socialMediaId", () => { 
+    it("should return status 401 if there is no authentication", async () => { 
+        const res = await request(app)
+            .delete(`/socialmedia/${SosmedId}`)
+            
+        expect(res.statusCode).toEqual(401)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("code")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(`Token not provided!`)
+    })
+    it("should return status 401 if the user is not authorized", async () => { 
+        const res = await request(app)
+            .delete(`/socialmedia/${newSosmedId}`)
+            .set("token", token)
+        
+        expect(res.statusCode).toEqual(403)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(` User with id ${UserId}  do not have permission with sosmed user id ${newSosmedId}`)
+    })
+    it("should return status 404 if social media is not found", async () => { 
+        const res = await request(app)
+            .delete(`/socialmedia/${SosmedId+2}`)
+            .set("token", token)
+        
+        expect(res.statusCode).toEqual(404)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("name")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(`Photo with id ${SosmedId+2} not found`)
+
+    })
+    it("should return status 200 if social media is deleted successfully", async () => { 
+        const res = await request(app)
+            .delete(`/socialmedia/${SosmedId}`)
+            .set("token", token)
+        
+        expect(res.statusCode).toEqual(200)
+        expect(typeof res.body).toEqual("object")
+        expect(res.body).toHaveProperty("message")
+        expect(typeof res.body.message).toEqual("string")
+        expect(res.body.message).toEqual(`Data ${SosmedId} Berhasil di hapus`)
+    })
+})
+
+
